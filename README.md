@@ -1,7 +1,5 @@
 # DockReflections16
 
-Standalone dock icon reflections for jailbroken iOS 16 (rootless).
+Standalone dock reflections for iOS 16 rootless. No SnowBoard required.
 
-Automatically mirrors icons directly from the SpringBoard dock. No SnowBoard or other theming extension is required. No settings, no extra controls.
-
-Version 0.1.0 is an initial test build: the visual result must be verified on an iOS 16 device.
+One enable switch in Settings. Includes a simple CallBar-style header, a GitHub link and a custom Settings icon.

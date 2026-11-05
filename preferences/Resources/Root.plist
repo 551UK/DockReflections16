@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>title</key><string>DockReflections16</string>
+<key>items</key><array>
+<dict><key>cell</key><string>PSGroupCell</string>
+<key>label</key><string>GENERAL</string>
+</dict>
+<dict><key>cell</key><string>PSSwitchCell</string>
+<key>label</key><string>Enable Dock Reflections</string>
+<key>defaults</key><string>uk.551.dockreflections16</string>
+<key>key</key><string>Enabled</string>
+<key>default</key><true/>
+<key>PostNotification</key><string>uk.551.dockreflections16/ReloadPrefs</string>
+</dict>
+<dict><key>cell</key><string>PSGroupCell</string>
+<key>label</key><string>PROJECT</string>
+<key>footerText</key><string>Made by 551</string>
+<key>footerAlignment</key><integer>1</integer></dict>
+<dict><key>cell</key><string>PSButtonCell</string>
+<key>id</key><string>githubLink</string>
+<key>label</key><string>View on GitHub</string>
+<key>action</key><string>openRepository:</string></dict>
+</array></dict></plist>

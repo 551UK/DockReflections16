@@ -3,10 +3,22 @@
 #import <objc/runtime.h>
 #import <objc/message.h>
 #import <math.h>
+#import <CoreFoundation/CoreFoundation.h>
 
 // DockReflections16: standalone rootless reflection effect.
 static char kReflectionHost;
 static char kRefreshPending;
+static BOOL sReflectionsEnabled = YES;
+static NSHashTable<UIView *> *sObservedDocks = nil;
+
+static void DR16ReadEnabled(void) {
+    CFPreferencesAppSynchronize(CFSTR("uk.551.dockreflections16"));
+    CFPropertyListRef value = CFPreferencesCopyAppValue(
+        CFSTR("Enabled"), CFSTR("uk.551.dockreflections16"));
+    sReflectionsEnabled = !value ||
+        (CFGetTypeID(value) == CFBooleanGetTypeID() && CFBooleanGetValue((CFBooleanRef)value));
+    if (value) CFRelease(value);
+}
 
 static UIView *IconImageView(UIView *icon) {
     SEL selector = NSSelectorFromString(@"iconImageView");
@@ -89,6 +101,10 @@ static void DrawReflection(UIView *host, UIImage *image, CGRect frame) {
 }
 
 static void UpdateReflections(UIView *dock) {
+    if (!sReflectionsEnabled) {
+        RemoveReflections(dock);
+        return;
+    }
     if (!dock.window || dock.hidden || dock.alpha < 0.01) {
         RemoveReflections(dock);
         return;
@@ -133,11 +149,24 @@ static void UpdateReflections(UIView *dock) {
 }
 
 static void ScheduleRefresh(UIView *dock) {
+    if (!sObservedDocks) sObservedDocks = [NSHashTable weakObjectsHashTable];
+    [sObservedDocks addObject:dock];
     if ([objc_getAssociatedObject(dock, &kRefreshPending) boolValue]) return;
     objc_setAssociatedObject(dock, &kRefreshPending, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     dispatch_async(dispatch_get_main_queue(), ^{
         objc_setAssociatedObject(dock, &kRefreshPending, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         UpdateReflections(dock);
+    });
+}
+
+static void DR16SettingsChanged(CFNotificationCenterRef center,
+                                void *observer, CFStringRef name,
+                                const void *object, CFDictionaryRef userInfo) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        DR16ReadEnabled();
+        for (UIView *dock in sObservedDocks.allObjects) {
+            UpdateReflections(dock);
+        }
     });
 }
 
@@ -157,6 +186,12 @@ static void ScheduleRefresh(UIView *dock) {
 %ctor {
     @autoreleasepool {
         if (@available(iOS 16.0, *)) {
+            DR16ReadEnabled();
+            CFNotificationCenterAddObserver(
+                CFNotificationCenterGetDarwinNotifyCenter(),
+                NULL, DR16SettingsChanged,
+                CFSTR("uk.551.dockreflections16/ReloadPrefs"),
+                NULL, CFNotificationSuspensionBehaviorDeliverImmediately);
             if (objc_getClass("SBDockIconListView")) %init(DockReflections);
         }
     }

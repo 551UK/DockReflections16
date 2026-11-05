@@ -11,3 +11,6 @@ DockReflections16_CFLAGS = -fobjc-arc -Wall -Wextra
 DockReflections16_FRAMEWORKS = UIKit QuartzCore
 
 include $(THEOS_MAKE_PATH)/tweak.mk
+
+SUBPROJECTS += preferences
+include $(THEOS_MAKE_PATH)/aggregate.mk

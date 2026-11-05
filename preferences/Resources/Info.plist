@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleDevelopmentRegion</key><string>en</string>
+<key>CFBundleIdentifier</key><string>uk.551.dockreflections16.prefs</string>
+<key>CFBundleExecutable</key><string>DockReflections16Prefs</string>
+<key>CFBundleName</key><string>DockReflections16Prefs</string>
+<key>CFBundlePackageType</key><string>BNDL</string>
+<key>CFBundleShortVersionString</key><string>0.2.0</string>
+<key>CFBundleVersion</key><string>1</string>
+<key>NSPrincipalClass</key><string>DR16RootListController</string>
+</dict></plist>

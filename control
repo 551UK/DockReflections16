@@ -1,9 +1,9 @@
 Package: uk.551.dockreflections16
 Name: DockReflections16
-Version: 0.1.0
+Version: 0.2.0
 Architecture: iphoneos-arm64
 Description: Standalone reflected dock icons for iOS 16 rootless.
 Maintainer: 551
 Author: 551
 Section: Tweaks
-Depends: mobilesubstrate, firmware (>= 16.0)
+Depends: mobilesubstrate, preferenceloader, firmware (>= 16.0)
