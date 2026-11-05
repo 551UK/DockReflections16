@@ -162,6 +162,11 @@ static void ScheduleRefresh(UIView *dock) {
 static void DR16SettingsChanged(CFNotificationCenterRef center,
                                 void *observer, CFStringRef name,
                                 const void *object, CFDictionaryRef userInfo) {
+    (void)center;
+    (void)observer;
+    (void)name;
+    (void)object;
+    (void)userInfo;
     dispatch_async(dispatch_get_main_queue(), ^{
         DR16ReadEnabled();
         for (UIView *dock in sObservedDocks.allObjects) {
