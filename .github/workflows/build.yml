@@ -1,0 +1,63 @@
+name: Build DockReflections16
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      THEOS: ${{ runner.temp }/theos
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: brew install ldid xz dpkg
+      - name: Install Theos
+        run: git clone --recursive --depth 1 https://github.com/theos/theos.git "$THEOS"
+      - name: Install iOS 16 SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$THEOS/sdks"
+          curl -fL --retry 3 -o "$RUNNER_TEMP/sdk.tar.xz" https://github.com/theos/sdks/releases/download/master-146e41f/iPhoneOS16.5.sdk.tar.xz
+          echo "5e0fd3f01266cce4ce012d4a99b38eb56578fca40d09edc81cd83dee958202fb  $RUNNER_TEMP/sdk.tar.xz" | shasum -a 256 -c -
+          tar -xJf "$RUNNER_TEMP/sdk.tar.xz" -C "$THEOS/sdks"
+      - name: Build and verify rootless package
+        shell: bash
+        run: |
+          set -euo pipefail
+          make clean package FINALPACKAGE=1
+          deb="$(find packages -maxdepth 1 -name '*.deb' -type f -print -quit)"
+          test -s "$deb"
+          test "$(dpkg-deb -f "$deb" Package)" = "uk.551.dockreflections16"
+          test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DockReflections16-rootless
+          path: packages/*.deb
+          if-no-files-found: error
+      - name: Publish one DEB in Releases
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }
+        run: |
+          set -euo pipefail
+          deb="$(find packages -maxdepth 1 -name '*.deb' -type f -print -quit)"
+          if gh release view DEB >/dev/null 2>&1; then
+            gh release upload DEB "$deb" --clobber
+            gh release edit DEB --notes ""
+          else
+            gh release create DEB "$deb" --target "$GITHUB_SHA" --title "DockReflections16" --notes ""
+          fi
+          keep="$(basename "$deb")"
+          while IFS= read -r asset; do
+            if [[ -n "$asset" && "$asset" != "$keep" ]]; then
+              gh release delete-asset DEB "$asset" --yes
+            fi
+          done < <(gh release view DEB --json assets --jq '.assets[].name')
