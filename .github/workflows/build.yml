@@ -37,6 +37,30 @@ jobs:
           test -s "$deb"
           test "$(dpkg-deb -f "$deb" Package)" = "uk.551.dockreflections16"
           test "$(dpkg-deb -f "$deb" Architecture)" = "iphoneos-arm64"
+      - name: Verify Settings icon is installed correctly
+        shell: bash
+        run: |
+          set -euo pipefail
+          deb="$(find packages -maxdepth 1 -name '*.deb' -type f -print -quit)"
+          temp="$(mktemp -d)"
+          trap 'rm -rf "$temp"' EXIT
+          dpkg-deb -x "$deb" "$temp"
+          root="$temp/var/jb"
+          entry="$root/Library/PreferenceLoader/Preferences/DockReflections16.plist"
+          bundle="$root/Library/PreferenceBundles/DockReflections16Prefs.bundle"
+          test -s "$entry"
+          test -s "$bundle/Info.plist"
+          test -s "$bundle/Root.plist"
+          test -s "$bundle/DockReflections16Prefs"
+          test "$(plutil -extract entry.bundle raw -o - "$entry")" = "DockReflections16Prefs"
+          test "$(plutil -extract entry.icon raw -o - "$entry")" = "icon.png"
+          for suffix in "" "@2x" "@3x"; do
+            test -s "$bundle/icon${suffix}.png"
+            file "$bundle/icon${suffix}.png" | grep -q "PNG image data"
+            file "$bundle/icon${suffix}.png" | grep -q "RGBA"
+            cmp "preferences/Resources/icon${suffix}.png" "$bundle/icon${suffix}.png"
+          done
+          echo "Settings icon checked at 1x, 2x and 3x inside the rootless .deb"
       - uses: actions/upload-artifact@v4
         with:
           name: DockReflections16-rootless
