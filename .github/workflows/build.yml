@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-15
     timeout-minutes: 30
     env:
-      THEOS: ${{ runner.temp }/theos
+      THEOS: ${{ runner.temp }}/theos
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
@@ -45,7 +45,7 @@ jobs:
       - name: Publish one DEB in Releases
         shell: bash
         env:
-          GH_TOKEN: ${{ github.token }
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
           deb="$(find packages -maxdepth 1 -name '*.deb' -type f -print -quit)"
